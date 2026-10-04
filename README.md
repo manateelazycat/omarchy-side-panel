@@ -2,6 +2,8 @@
 
 English | [简体中文](README.zh-CN.md)
 
+https://github.com/user-attachments/assets/0801ce55-6533-4995-a50d-ac23447fdbd9
+
 An auto-hiding side dock for Omarchy, with support for multiple monitors.
 
 ## Features

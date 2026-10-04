@@ -2,6 +2,8 @@
 
 简体中文 | [English](README.md)
 
+https://github.com/user-attachments/assets/0801ce55-6533-4995-a50d-ac23447fdbd9
+
 Omarchy 自动隐藏侧边任务栏，支持多显示器。
 
 ## 功能
