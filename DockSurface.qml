@@ -17,8 +17,8 @@ PanelWindow {
     readonly property real viewportHeight: Math.min(column.implicitHeight, Math.max(100, height - 80))
     readonly property real dockHeight: viewportHeight + 36
     readonly property real dockTop: Math.round((height - dockHeight) / 2)
-    readonly property real triggerHeight: Math.min(height, host.options.triggerHeight)
-    readonly property real triggerTop: Math.round((height - triggerHeight) / 2)
+    readonly property real triggerHeight: height
+    readonly property real triggerTop: 0
     readonly property bool popupHeld: host.activePopout && host.targetBelongsToWindow(host.activePopout, surface)
     readonly property bool shown: !host.barHidden && (revealed || popupHeld)
     property real revealProgress: shown ? 1 : 0
@@ -37,7 +37,7 @@ PanelWindow {
     }
     ScreenMoveRemap { id: remapGuard; window: surface }
 
-    // Only a short, centered strip receives input while hidden. Once shown,
+    // The full left edge receives input while hidden. Once shown,
     // the whole dock and its departure gutter become interactive.
     mask: Region {
         Region {

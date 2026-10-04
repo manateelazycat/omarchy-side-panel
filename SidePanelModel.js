@@ -47,7 +47,6 @@ function options(config) {
         iconPixels: Math.round(numberSetting(settings, "iconPixels", 16, 8, 24)),
         magnification: numberSetting(settings, "magnification", 1.28, 1, 1.6),
         triggerWidth: numberSetting(settings, "triggerWidth", 2, 1, 12),
-        triggerHeight: numberSetting(settings, "triggerHeight", 120, 40, 400),
         showDelay: numberSetting(settings, "showDelay", 500, 150, 1500),
         hideDistance: numberSetting(settings, "hideDistance", 24, 8, 96),
         hideDelay: numberSetting(settings, "hideDelay", 260, 0, 1500),
