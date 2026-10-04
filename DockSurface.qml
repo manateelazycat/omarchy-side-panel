@@ -65,10 +65,12 @@ PanelWindow {
             contentHeight: column.implicitHeight, viewportHeight: viewportHeight,
             powerY: dockTop + 18 + powerCell.height / 2 - flick.contentY,
             powerNormalization: powerIcon.iconNormalizer.snapshot(),
+            powerVectors: powerIcon.iconRasterizer.glyphSnapshot(),
             actions: [0, 1, 2].map(function(index) {
                 var cell = actions.itemAt(index);
                 return cell ? {id: cell.modelData, y: dockTop + 18 + cell.y + cell.height / 2 - flick.contentY,
-                    scale: cell.iconScale, normalization: cell.children[0].iconNormalizer.snapshot()} : null;
+                    scale: cell.iconScale, normalization: cell.children[0].iconNormalizer.snapshot(),
+                    vectorGlyphs: cell.children[0].iconRasterizer.glyphSnapshot()} : null;
             })};
     }
     Component.onCompleted: host.registerSurface(surface)

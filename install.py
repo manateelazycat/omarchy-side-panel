@@ -134,6 +134,9 @@ def main():
             for name in FILES:
                 shutil.copy2(SOURCE / name, stage / name)
             shutil.copytree(SOURCE / "Ui", stage / "Ui")
+            shutil.copytree(SOURCE / "Icons", stage / "Icons")
+            cache_home = Path(os.environ.get("XDG_CACHE_HOME", str(Path.home() / ".cache")))
+            (cache_home / "omarchy-side-panel/icons").mkdir(parents=True, exist_ok=True)
             if destination.exists():
                 os.replace(destination, state_dir / f"plugin-{stamp}")
             os.replace(stage, destination)

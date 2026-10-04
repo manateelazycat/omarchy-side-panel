@@ -43,7 +43,7 @@ function options(config) {
     var settings = config && config.sidePanel || {};
     return {
         iconSize: numberSetting(settings, "iconSize", 28, 18, 48),
-        pixelated: settings.pixelated !== false,
+        pixelated: settings.pixelated === true,
         iconPixels: Math.round(numberSetting(settings, "iconPixels", 16, 8, 24)),
         magnification: numberSetting(settings, "magnification", 1.28, 1, 1.6),
         triggerWidth: numberSetting(settings, "triggerWidth", 2, 1, 12),

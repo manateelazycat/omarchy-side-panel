@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Window
 import Quickshell
 import qs.Commons
 import "SidePanelModel.js" as Model
@@ -25,15 +26,15 @@ Item {
     height: implicitHeight
 
     // Desaturate every visual child, including app icons and active states.
-    // Keep the sprite resolution fixed while hover changes only scale.
+    // Decode SVGs above display resolution, including the hover enlargement.
     layer.enabled: naturalHeight > 0
     layer.textureSize: host.options.pixelated
         ? Qt.size(Math.max(1, Math.round(width * host.options.iconPixels / Style.bar.iconCanvas)),
             Math.max(1, Math.round(height * host.options.iconPixels / Style.bar.iconCanvas)))
-        : Qt.size(0, 0)
+        : Qt.size(Math.ceil(width * Screen.devicePixelRatio * 4), Math.ceil(height * Screen.devicePixelRatio * 4))
     layer.smooth: !host.options.pixelated
     layer.mipmap: false
-    layer.effect: PanelUi.MonochromeIconEffect {}
+    layer.effect: PanelUi.MonochromeIconEffect { smooth: !root.host.options.pixelated }
     layer.sourceRect: iconNormalizer.sourceRect
     readonly property var iconNormalizer: PanelUi.IconNormalizer {
         parent: root

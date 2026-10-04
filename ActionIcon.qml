@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Window
 import qs.Ui
 import "Ui" as PanelUi
 
@@ -15,15 +16,21 @@ BarIconButton {
     layer.textureSize: host.options.pixelated
         ? Qt.size(Math.max(1, Math.round(width * host.options.iconPixels / opticalSize)),
             Math.max(1, Math.round(height * host.options.iconPixels / opticalSize)))
-        : Qt.size(0, 0)
+        : Qt.size(Math.ceil(width * Screen.devicePixelRatio * 4), Math.ceil(height * Screen.devicePixelRatio * 4))
     layer.smooth: !host.options.pixelated
     layer.mipmap: false
-    layer.effect: PanelUi.MonochromeIconEffect {}
+    layer.effect: PanelUi.MonochromeIconEffect { smooth: !root.host.options.pixelated }
     layer.sourceRect: iconNormalizer.sourceRect
     readonly property var iconNormalizer: PanelUi.IconNormalizer {
         parent: root
         sourceItem: root
         targetSize: root.opticalSize
+    }
+    readonly property var iconRasterizer: PanelUi.IconRasterizer {
+        parent: root
+        rootItem: root
+        pixelated: root.host.options.pixelated
+        pixels: root.host.options.iconPixels
     }
     text: action === "power" ? "󰐥"
         : action === "recording" ? (host.recording ? "󰓛" : "󰻂")

@@ -76,6 +76,7 @@ Item {
             visible: slot.activeItem ? slot.activeItem.visible : false,
             naturalHeight: slot.naturalHeight, popups: slot.popupStyler.snapshot(),
             normalization: slot.iconNormalizer.snapshot(),
+            vectorGlyphs: slot.iconRasterizer.glyphSnapshot(),
             pixelation: {enabled: slot.layer.enabled, smooth: slot.layer.smooth,
                 textureWidth: slot.layer.textureSize.width, textureHeight: slot.layer.textureSize.height,
                 images: slot.iconRasterizer.snapshot()}};
