@@ -18,7 +18,7 @@ test('every generated glyph has real vector paths and no bitmap or font dependen
     assert.match(svg,/<path /);
     assert.doesNotMatch(svg,/<image|<text|data:image/);
   }
-  for (const text of ['󰐥','󰓛','󰂛','󰂚','▦','EN','LC','中']) assert.ok(glyphs.fileFor(text));
+  for (const text of ['\ue900','󰐥','󰓛','󰂛','󰂚','▦','EN','LC','中']) assert.ok(glyphs.fileFor(text));
 });
 
 test('tray apps use their selected marks and new icons produce standalone grayscale SVGs', () => {

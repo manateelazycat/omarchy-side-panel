@@ -4,6 +4,7 @@
 #include <QDir>
 #include <QJsonDocument>
 #include <QJsonArray>
+#include <QJsonObject>
 #include <QImage>
 #include <QTextLayout>
 #include <QGlyphRun>
@@ -48,8 +49,9 @@ int main(int argc, char **argv) {
     QDir directory(args[2]); directory.mkpath("glyphs");
     QStringList keys;
     for (const auto &value : texts) {
-        auto text = value.toString();
-        QFont font(args[3]); font.setPixelSize(256); font.setHintingPreference(QFont::PreferNoHinting);
+        auto text = value.isObject() ? value.toObject().value("text").toString() : value.toString();
+        auto family = value.isObject() ? value.toObject().value("fontFamily").toString(args[3]) : args[3];
+        QFont font(family); font.setPixelSize(256); font.setHintingPreference(QFont::PreferNoHinting);
         QTextLayout layout(text, font);
         layout.beginLayout(); auto line = layout.createLine(); line.setLineWidth(10000); layout.endLayout();
         QPainterPath outline;

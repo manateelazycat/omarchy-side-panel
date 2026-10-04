@@ -12,6 +12,7 @@ BarIconButton {
     fixedHeight: 27
     opticalSize: 16
     fontSize: 15
+    fontFamily: action === "power" ? "omarchy" : host.fontFamily
     layer.enabled: true
     layer.textureSize: host.options.pixelated
         ? Qt.size(Math.max(1, Math.round(width * host.options.iconPixels / opticalSize)),
@@ -32,7 +33,7 @@ BarIconButton {
         pixelated: root.host.options.pixelated
         pixels: root.host.options.iconPixels
     }
-    text: action === "power" ? "󰐥"
+    text: action === "power" ? "\ue900"
         : action === "recording" ? (host.recording ? "󰓛" : "󰻂")
         : action === "idle" ? (host.stayAwake ? "󰅶" : "󰒲")
         : (host.doNotDisturb ? "󰂛" : "󰂚")
