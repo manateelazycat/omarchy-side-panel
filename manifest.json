@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "id": "andy.side-panel",
+  "name": "Left Side Panel",
+  "version": "1.0.0",
+  "author": "Andy",
+  "license": "GPL-3.0-only",
+  "description": "Animated, auto-hiding left dock with existing right-side widgets and selected recording, idle and notification controls.",
+  "kinds": ["bar"],
+  "entryPoints": { "bar": "Bar.qml" }
+}
