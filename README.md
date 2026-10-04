@@ -58,7 +58,7 @@ python3 install.py uninstall
 
 ## SVG 图标
 
-`Icons/glyphs/` 提供 78 个图案和状态对应的 SVG，按系统的原有字体轮廓生成，包括录屏、锁屏、通知、音量、蓝牙、网络和电池状态。字形轮廓来自 JetBrainsMono Nerd Font 及其系统回退字体；项目不打包字体。`Icons/tray/` 提供 FlClash 和懒猫微服标识的灰度矢量版本。FlClash 使用按[指定标志](https://flclash.cc/logo.png)重绘的两条圆头斜线和圆点，所有运行状态显示同一标志。
+`Icons/glyphs/` 提供 79 个图案和状态对应的 SVG，按系统的原有字体轮廓生成，包括录屏、锁屏、通知、音量、蓝牙、网络和电池状态。懒猫微服以 `LC` 字母表示，与其他字母图标使用同一字体轮廓和任务栏灰度前景色，不加底框。字形轮廓来自 JetBrainsMono Nerd Font 及其系统回退字体；项目不打包字体。`Icons/tray/` 中的 FlClash 使用按[指定标志](https://flclash.cc/logo.png)重绘的两条圆头斜线和圆点，所有运行状态显示同一标志。
 
 新出现的托盘标识会按其实际图案转换为灰度 SVG 路径，保存在 `~/.cache/omarchy-side-panel/icons/`（遵循 `XDG_CACHE_HOME`），原有托盘的点击、右键菜单和状态更新继续由插件处理。SVG 不嵌入位图。
 

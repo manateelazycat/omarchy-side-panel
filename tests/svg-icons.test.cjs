@@ -18,14 +18,14 @@ test('every generated glyph has real vector paths and no bitmap or font dependen
     assert.match(svg,/<path /);
     assert.doesNotMatch(svg,/<image|<text|data:image/);
   }
-  for (const text of ['󰐥','󰓛','󰂛','󰂚','▦','EN','中']) assert.ok(glyphs.fileFor(text));
+  for (const text of ['󰐥','󰓛','󰂛','󰂚','▦','EN','LC','中']) assert.ok(glyphs.fileFor(text));
 });
 
 test('tray apps use their selected marks and new icons produce standalone grayscale SVGs', () => {
   for (const state of [1,2,3]) assert.equal(packagedFile('FlClash','image://icon/status_'+state+'.png'),'tray/flclash.svg');
-  assert.equal(packagedFile('lzc-client-desktop_status_icon_1','image://pixmap/1'),'tray/lazycat.svg');
+  assert.equal(packagedFile('lzc-client-desktop_status_icon_1','image://pixmap/1'),'glyphs/4c-43.svg');
   assert.equal(packagedFile('another app','image://pixmap/2'),'');
-  for (const name of ['flclash.svg','lazycat.svg']) {
+  for (const name of ['flclash.svg']) {
     const artwork = fs.readFileSync(path.join(__dirname,'../Icons/tray',name),'utf8');
     assert.match(artwork,/<path /);
     assert.doesNotMatch(artwork,/<image|data:image/);

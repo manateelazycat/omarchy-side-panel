@@ -6,7 +6,7 @@ function hash(text) {
 }
 function packagedFile(id, source) {
     if (/flclash/i.test(id)) return "tray/flclash.svg";
-    return /lzc-client|lazycat|懒猫/i.test(id) ? "tray/lazycat.svg" : "";
+    return /lzc-client|lazycat|懒猫/i.test(id) ? "glyphs/4c-43.svg" : "";
 }
 function simplify(points, epsilon) {
     if (points.length <= 2) return points;

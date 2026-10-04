@@ -61,7 +61,11 @@ Item {
                         sourceItem: icon, targetSize: Style.bar.iconCanvas});
                     normalizers.push(normalizer);
                     imageNormalizers.set(item, normalizer);
-                    var vector = trayVector.createObject(rasterizer, {parent: icon, sourceImage: item, trayIcon: icon});
+                    var vector = trayVector.createObject(rasterizer, {parent: icon, sourceImage: item, trayIcon: icon,
+                        foreground: Qt.binding(function() {
+                            return rasterizer.rootItem && "foreground" in rasterizer.rootItem
+                                ? rasterizer.rootItem.foreground : Color.bar.text;
+                        })});
                     vectors.push(vector); imageVectors.set(item, vector);
                     for (var effectIndex = 0; effectIndex < icon.children.length; effectIndex++) {
                         var effect = icon.children[effectIndex];

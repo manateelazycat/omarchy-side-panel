@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Effects
 import Quickshell
 import Quickshell.Io
 import "TraySvg.js" as Svg
@@ -12,6 +13,8 @@ Item {
     readonly property string identity: trayItem ? String(trayItem.id || trayItem.title || trayItem.tooltipTitle || "") : ""
     readonly property string originalSource: String(trayIcon.icon || "")
     readonly property string file: Svg.packagedFile(identity, originalSource)
+    readonly property bool symbolic: file === "glyphs/4c-43.svg"
+    property color foreground: "#fff"
     readonly property bool ready: image.status === Image.Ready
     property string generatedSource: ""
     property string loadedSource: ""
@@ -24,7 +27,19 @@ Item {
         sourceSize: Qt.size(128,128)
         fillMode: Image.PreserveAspectFit
         smooth: true
-        visible: vector.ready
+        visible: vector.ready && !vector.symbolic
+        layer.enabled: vector.symbolic
+        layer.textureSize: Qt.size(128,128)
+        layer.smooth: true
+        layer.mipmap: false
+    }
+    MultiEffect {
+        anchors.fill: parent
+        source: image
+        visible: vector.symbolic && vector.ready
+        colorization: 1
+        colorizationColor: vector.foreground
+        autoPaddingEnabled: false
     }
     function refresh() {
         generatedSource = "";
