@@ -13,6 +13,8 @@ An auto-hiding side dock for Omarchy, with support for multiple monitors.
 - Icons sort by click count, saved across restarts. The power menu always stays first.
 - Scroll overflowing icons with smooth motion and elastic rebound. Hold **Alt** while scrolling to use an icon's original wheel action.
 - Uses existing right-side widgets and app tray icons.
+- Automatically restores live tray items after Shell restarts, including Catlink's remote WeChat tray.
+- WeChat uses a rounded outline and uppercase W matching the other icons' strokes; other ordinary tray icons use gray rounded tiles with uppercase initials, preserving the custom LazyCat and FlClash artwork. Blinking becomes a dot that follows the theme accent and clears when attention ends or the icon is clicked.
 - Includes power, recording, idle, notification and Shell restart controls.
 
 ## Install

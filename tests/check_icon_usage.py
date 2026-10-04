@@ -17,7 +17,7 @@ def main():
         (root / "Ui").symlink_to(omarchy / "shell/Ui", target_is_directory=True)
         shutil.copytree(source / "Ui", root / "Plugin/Ui")
         shutil.copytree(source / "Icons", root / "Plugin/Icons")
-        for name in ("IconUsage.qml", "UsageModel.js", "TrayButton.qml", "DockLayout.qml", "ActionIcon.qml"):
+        for name in ("IconUsage.qml", "UsageModel.js", "TrayIconModel.js", "TrayButton.qml", "DockLayout.qml", "ActionIcon.qml"):
             shutil.copy2(source / name, root / "Plugin" / name)
         for package in (root / "Plugin", root / "Plugin/Ui"):
             with (package / "qmldir").open("a") as stream:

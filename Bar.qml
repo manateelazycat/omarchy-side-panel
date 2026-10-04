@@ -60,6 +60,8 @@ Item {
         id: iconUsage
         onCountsChanged: root.refreshIconOrder()
     }
+    TrayRecovery { id: trayRecovery }
+    readonly property var trayAttention: TrayAttention {}
     DockCoordinator { id: handoff; host: root }
     function dismissDockPopout() {
         var owner = activePopout;
@@ -292,6 +294,8 @@ Item {
                 stayAwake: root.stayAwake, doNotDisturb: root.doNotDisturb,
                 pixelated: root.options.pixelated, iconPixels: root.options.iconPixels,
                 usage: iconUsage.snapshot(),
+                trayRecovery: trayRecovery.snapshot(),
+                trayAttention: root.trayAttention.snapshot(),
                 handoff: handoff.snapshot(),
                 popupStyle: PanelUi.PopupAppearance.snapshot(),
                 tooltip: {shown: root.tooltipShown, text: root.tooltipText,

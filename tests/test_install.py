@@ -103,6 +103,8 @@ class InstallationLifecycle(unittest.TestCase):
         self.assertEqual(self.events[-1], "start")
         self.assertEqual(json.loads(self.config_path.read_text()), self.original_config)
         self.assertTrue((self.plugin / "Bar.qml").exists())
+        self.assertTrue((self.plugin / "TrayRecovery.qml").exists())
+        self.assertTrue((self.plugin / "recover-tray.py").exists())
         self.assertIn(b"SidePanelUi.PopupStyler", self.service.read_bytes())
 
     def test_failed_activation_rolls_back_plugin_configuration_and_services(self):

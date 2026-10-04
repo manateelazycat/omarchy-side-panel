@@ -30,7 +30,7 @@ def inspect(path, contrast=False):
     if contrast:
         assert all(max(color)-min(color) <= 1 for color in solid), f'Tray is colored: {path.name}'
         assert max(max(color) for color in solid) >= 219, f'Tray foreground differs: {path.name}'
-        assert min(min(color) for color in solid) <= 20, f'Tray detail disappeared: {path.name}'
+        assert any(all(abs(v-102) <= 1 for v in color) for color in solid), f'Gray tray tile disappeared: {path.name}'
     else:
         assert all(max(abs(v-221) for v in color) <= 1 for color in solid), f'Tint differs: {path.name}'
     assert abs((left+right)/2 - width/2) <= 2, f'Horizontal alignment: {path.name}'
@@ -53,7 +53,7 @@ def main():
             shutil.copytree(source/name, root/'Plugin'/name)
             if staged:
                 shutil.copytree(staged/source.name/name, root/'Plugin'/name, dirs_exist_ok=True)
-        for name in ('ActionIcon.qml', 'TrayButton.qml', 'UsageModel.js'):
+        for name in ('ActionIcon.qml', 'TrayButton.qml', 'UsageModel.js', 'TrayIconModel.js'):
             path = staged/source.name/name if staged and (staged/source.name/name).exists() else source/name
             shutil.copy2(path, root/'Plugin'/name)
         for package in (root/'Plugin', root/'Plugin/Ui'):

@@ -16,7 +16,8 @@ PLUGIN_ID = "andy.side-panel"
 SOURCE = Path(__file__).resolve().parent
 FILES = ["manifest.json", "Bar.qml", "DockSurface.qml", "WidgetSlot.qml",
          "ActionIcon.qml", "ServiceBridge.qml", "SidePanelModel.js", "IconUsage.qml",
-         "UsageModel.js", "TrayButton.qml", "DockLayout.qml", "DockCoordinator.qml", "README.md", "README.zh-CN.md", "LICENSE"]
+         "UsageModel.js", "TrayButton.qml", "TrayIconModel.js", "TrayAttention.qml", "TrayRecovery.qml", "recover-tray.py",
+         "DockLayout.qml", "DockCoordinator.qml", "README.md", "README.zh-CN.md", "LICENSE"]
 STYLED_SERVICES = ["andy.language-switcher", "andy.display-reset", "io.github.manateelazycat.startup-map"]
 STYLE_IMPORT = 'import "../andy.side-panel/Ui" as SidePanelUi // andy.side-panel popup style\n'
 

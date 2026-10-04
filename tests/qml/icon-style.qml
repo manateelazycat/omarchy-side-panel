@@ -95,7 +95,7 @@ ShellRoot {
             add(filenames[k],glyph,n);
         }
         var generic=trayFactory.createObject(canvas,{modelData:{id:"example-app",icon:Qt.resolvedUrl("generic-tray.svg")}});
-        add("位图托盘灰度",generic,generic.iconNormalizer);
+        add("托盘首字母",generic,generic.iconNormalizer);
     }
     Timer {
         id: capture
@@ -104,7 +104,7 @@ ShellRoot {
             root.pending=entries.length;
             for(var i=0;i<entries.length;i++) {
                 var entry=entries[i];
-                console.log("ICON_METRIC",entry.name,JSON.stringify(entry.normalizer?entry.normalizer.snapshot():entry.source.iconRasterizer.snapshot()));
+                console.log("ICON_METRIC",entry.name,JSON.stringify(entry.normalizer?entry.normalizer.snapshot():entry.source.snapshot()));
                 entry.item.grabToImage(function(index, phase){return function(result){
                     if(!result.saveToFile(Quickshell.env("ICON_PREVIEW_DIR")+"/"+index+"-"+phase+".png")) root.failed=true;
                     root.pending--;

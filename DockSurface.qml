@@ -84,7 +84,7 @@ PanelWindow {
             icons: column.orderedCells.map(function(cell) {
                 return {key: cell.usageKey, clicks: surface.host.iconClickCount(cell.usageKey),
                     y: surface.dockTop + 18 + cell.y + cell.height / 2 - flick.contentY,
-                    tray: cell.trayButton ? cell.trayButton.iconRasterizer.snapshot() : null,
+                    tray: cell.trayButton ? cell.trayButton.snapshot() : null,
                     normalization: cell.trayButton ? cell.trayButton.iconNormalizer.snapshot() : null};
             }),
             actions: Array.from({length: actions.count}, function(_, index) {
