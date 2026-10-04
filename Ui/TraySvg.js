@@ -5,10 +5,7 @@ function hash(text) {
     return (value >>> 0).toString(16);
 }
 function packagedFile(id, source) {
-    if (/flclash/i.test(id)) {
-        var state = /status_([123])/.exec(source);
-        return "tray/flclash-" + (state ? state[1] : "3") + ".svg";
-    }
+    if (/flclash/i.test(id)) return "tray/flclash.svg";
     return /lzc-client|lazycat|懒猫/i.test(id) ? "tray/lazycat.svg" : "";
 }
 function simplify(points, epsilon) {
