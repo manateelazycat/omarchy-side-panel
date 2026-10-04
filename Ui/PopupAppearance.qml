@@ -9,6 +9,7 @@ QtObject {
     readonly property int radius: 8
     readonly property int borderWidth: 1
     readonly property int horizontalPadding: 12
+    readonly property int horizontalGap: 10
     readonly property int verticalPadding: 9
     readonly property int fontSize: 12
     readonly property string fontFamily: Style.font.family
@@ -21,8 +22,10 @@ QtObject {
     function unregisterStyler(styler) { stylers = stylers.filter(function(item) { return item !== styler; }); }
     function snapshot() {
         return {enabled: enabled, radius: radius, background: String(background),
+            horizontalGap: horizontalGap,
             foreground: String(foreground), border: String(borderColor), borderWidth: borderWidth,
             fontSize: fontSize, fontFamily: fontFamily,
+            positioning: stylers.reduce(function(all, styler) { return all.concat(styler.positioningSnapshot()); }, []),
             popups: stylers.reduce(function(all, styler) { return all.concat(styler.snapshot()); }, [])};
     }
     property FileView configuration: FileView {

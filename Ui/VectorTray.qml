@@ -13,7 +13,7 @@ Item {
     readonly property string identity: trayItem ? String(trayItem.id || trayItem.title || trayItem.tooltipTitle || "") : ""
     readonly property string originalSource: String(trayIcon.icon || "")
     readonly property string file: Svg.packagedFile(identity, originalSource)
-    readonly property bool symbolic: file === "glyphs/4c-43.svg"
+    readonly property bool symbolic: file === "tray/lazycat.svg" || file === "tray/flclash.svg"
     property color foreground: "#fff"
     readonly property bool ready: image.status === Image.Ready
     property string generatedSource: ""

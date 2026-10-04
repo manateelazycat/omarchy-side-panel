@@ -13,7 +13,8 @@ Item {
     property bool busy: false
     property int revision: 0
     property var watches: []
-    property var watched: new WeakSet()
+    property var watched: new Set()
+    property bool disposing: false
     readonly property var crop: Geometry.sourceRect(bounds,
         sourceItem ? sourceItem.width : 0, sourceItem ? sourceItem.height : 0, targetSize)
     readonly property rect sourceRect: normalize ? Qt.rect(crop.x, crop.y, crop.width, crop.height) : Qt.rect(0, 0, 0, 0)
@@ -43,15 +44,16 @@ Item {
         }
         if ("children" in item) for (var i = 0; i < item.children.length; i++) watch(item.children[i]);
     }
-    function watchTree() { watch(sourceItem); }
-    function schedule() { revision++; captureTimer.restart(); }
+    function watchTree() { if (!disposing) watch(sourceItem); }
+    function schedule() { if (!disposing) { revision++; captureTimer.restart(); } }
     function capture() {
-        if (busy || !normalize || !sourceItem || !sourceItem.visible || !probe.available
+        if (disposing || busy || !normalize || !sourceItem || !sourceItem.visible || !probe.available
             || sourceItem.width <= 0 || sourceItem.height <= 0) return;
         var item = sourceItem, current = revision;
-        var w = Math.max(1, Math.ceil(item.width * 2)), h = Math.max(1, Math.ceil(item.height * 2));
+        var w = Math.max(1, Math.ceil(item.width * 8)), h = Math.max(1, Math.ceil(item.height * 8));
         busy = true;
         if (!item.grabToImage(function(result) {
+            if (!normalizer || normalizer.disposing) return;
             busy = false;
             if (normalizer.sourceItem !== item || current !== normalizer.revision) { normalizer.schedule(); return; }
             if (normalizer.grabResult) probe.unloadImage(normalizer.grabResult.url);
@@ -62,9 +64,10 @@ Item {
         }, Qt.size(w, h))) busy = false;
     }
     function reset() {
-        watches.forEach(function(watch) { if (watch) watch.destroy(); });
-        watches = []; watched = new WeakSet(); bounds = null;
-        Qt.callLater(function() { watchTree(); schedule(); });
+        revision++;
+        watches.forEach(function(watch) { if (watch) { watch.target = null; watch.adapter = null; watch.destroy(); } });
+        watches = []; watched = new Set(); bounds = null;
+        if (!disposing) watchTimer.restart();
     }
     function snapshot() {
         return {ready: !!bounds, bounds: bounds, targetSize: targetSize,
@@ -73,6 +76,8 @@ Item {
     onSourceItemChanged: reset()
     onNormalizeChanged: schedule()
     Component.onCompleted: reset()
+    Component.onDestruction: { disposing = true; watchTimer.stop(); captureTimer.stop(); reset(); }
+    Timer { id: watchTimer; interval: 0; onTriggered: { normalizer.watchTree(); normalizer.schedule(); } }
     Timer { id: captureTimer; interval: 20; onTriggered: normalizer.capture() }
     Canvas {
         id: probe

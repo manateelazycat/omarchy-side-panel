@@ -7,7 +7,8 @@ Item {
     id: vector
     readonly property bool sidePanelVectorGlyph: true
     required property var sourceText
-    readonly property string file: Glyphs.fileFor(sourceText.text)
+    property string fileOverride: ""
+    readonly property string file: fileOverride || Glyphs.fileFor(sourceText.text)
     readonly property bool ready: image.status === Image.Ready
     x: sourceText.x + metrics.tightBoundingRect.x
     y: sourceText.y + sourceText.baselineOffset + metrics.tightBoundingRect.y

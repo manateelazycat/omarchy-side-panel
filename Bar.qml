@@ -5,6 +5,7 @@ import Quickshell.Io
 import qs.Commons
 import qs.Ui
 import "SidePanelModel.js" as Model
+import "UsageModel.js" as Usage
 import "Ui" as PanelUi
 
 Item {
@@ -18,7 +19,12 @@ Item {
     property var layoutConfig: ({left: [], center: [], right: []})
     readonly property var options: Model.options(barConfig)
     readonly property var rightEntries: Model.rightEntries(layoutConfig)
-    readonly property string position: "left"
+    readonly property string position: {
+        var window = targetWindow(activePopout || tooltipTarget);
+        if (window && "dockSide" in window) return window.dockSide;
+        var hovered = surfaces.find(function(surface) { return surface.pointerHovered; });
+        return hovered ? hovered.dockSide : "left";
+    }
     readonly property bool vertical: true
     readonly property int barSize: Style.bar.sizeVertical
     readonly property bool transparent: false
@@ -37,6 +43,8 @@ Item {
     property var pluginClickTargets: []
     property var moduleSlots: []
     property var surfaces: []
+    readonly property var dockCoordinator: handoff
+    property var orderCounts: ({})
     property var widgetApis: ({})
     property var serviceBridges: ({})
     property var tooltipTarget: null
@@ -47,6 +55,26 @@ Item {
     readonly property var notificationService: shell ? shell.firstPartyServiceFor("omarchy.notifications") : null
     readonly property bool stayAwake: idleService ? idleService.stayAwake : false
     readonly property bool doNotDisturb: notificationService ? notificationService.doNotDisturb : false
+
+    IconUsage {
+        id: iconUsage
+        onCountsChanged: root.refreshIconOrder()
+    }
+    DockCoordinator { id: handoff; host: root }
+    function dismissDockPopout() {
+        var owner = activePopout;
+        if (!owner) return;
+        if (typeof owner.closeForPopoutSwitch === "function") owner.closeForPopoutSwitch();
+        else if (typeof owner.close === "function") owner.close();
+        releasePopout(owner);
+    }
+    onActivePopoutChanged: handoff.advance()
+    function recordIconClick(key) { iconUsage.record(key); }
+    function iconClickCount(key) { return Usage.countFor(iconUsage.counts, key); }
+    function refreshIconOrder() {
+        if (!activePopout && !surfaces.some(function(surface) { return surface.shown || surface.revealProgress > 0; }))
+            orderCounts = Object.assign({}, iconUsage.counts);
+    }
 
     function run(command) { Quickshell.execDetached(["bash", "-c", String(command)]); }
     function shellQuote(value) { return Util.shellQuote(value); }
@@ -61,13 +89,19 @@ Item {
         moduleSlots = moduleSlots.filter(function(item) { return item !== slot; });
     }
     function registerSurface(surface) { surfaces = surfaces.concat([surface]); }
-    function unregisterSurface(surface) { surfaces = surfaces.filter(function(item) { return item !== surface; }); }
+    function unregisterSurface(surface) {
+        handoff.cancel(surface);
+        surfaces = surfaces.filter(function(item) { return item !== surface; });
+    }
     function targetWindow(target) {
         if (!target) return null;
-        if ("contentItem" in target && "screen" in target) return target;
+        if ("contentItem" in target && "screen" in target) return "currentWindow" in target ? target.currentWindow : target;
         return target.QsWindow ? target.QsWindow.window : null;
     }
-    function targetBelongsToWindow(target, window) { return targetWindow(target) === window; }
+    function targetBelongsToWindow(target, window) {
+        var actual = targetWindow(target);
+        return actual === window || (actual && "dockOwner" in actual && actual.dockOwner === window);
+    }
     function slotSnapshot(slot) {
         var window = targetWindow(slot);
         var point = slot.mapToItem(null, slot.width / 2, slot.height / 2);
@@ -94,7 +128,8 @@ Item {
     function hideBarWidget(id) { var item = findPanelWidget(id); if (!item) return false; item.close(); return true; }
     function isBarWidgetOpen(id) { var item = findPanelWidget(id); return !!item && item.opened === true; }
     function panelWidgetIdAt(region, index) {
-        var ids = rightEntries.map(Model.entryId).filter(function(id) { return !!findPanelWidget(id); });
+        var ids = rightEntries.map(Model.entryId).filter(function(id) { return !!findPanelWidget(id); })
+            .sort(function(a, b) { return Usage.countFor(orderCounts, "widget:" + b) - Usage.countFor(orderCounts, "widget:" + a); });
         return region === "right" ? ids[Number(index) - 1] || "" : "";
     }
     function switchPanelFrom(owner, direction) {
@@ -104,7 +139,7 @@ Item {
         var slots = moduleSlots.filter(function(slot) {
             var item = slot.activeItem;
             return targetWindow(item) === window && item && item.visible && typeof item.open === "function" && typeof item.close === "function";
-        });
+        }).sort(function(a, b) { return a.mapToItem(null, 0, 0).y - b.mapToItem(null, 0, 0).y; });
         var index = slots.indexOf(current);
         if (slots.length < 2 || index < 0) return false;
         slots[(index + (direction < 0 ? -1 : 1) + slots.length) % slots.length].activeItem.open();
@@ -154,7 +189,7 @@ Item {
             serviceBridges[id] = bridge;
             entryShell = bridge;
         }
-        var api = apiComponent.createObject(null, {
+        var api = apiComponent.createObject(root, {
             pluginId: id, moduleName: id, shell: entryShell,
             _showTooltip: function(target, text) { root.showTooltip(target, text); },
             _hideTooltip: function(target) { root.hideTooltip(target); },
@@ -179,7 +214,7 @@ Item {
         api.background = Qt.binding(function() { return root.background; });
         api.urgent = Qt.binding(function() { return root.urgent; });
         api.fontFamily = Qt.binding(function() { return root.fontFamily; });
-        api.position = "left";
+        api.position = Qt.binding(function() { return root.position; });
         api.vertical = true;
         api.barSize = root.barSize;
         api.foregroundAnimationEnabled = true;
@@ -206,10 +241,7 @@ Item {
         }
     }
     onBarConfigChanged: applyConfig()
-    Component.onCompleted: applyConfig()
-    Component.onDestruction: {
-        for (var id in widgetApis) if (widgetApis[id]) widgetApis[id].destroy();
-    }
+    Component.onCompleted: { applyConfig(); refreshIconOrder(); }
     Timer {
         id: tooltipTimer
         interval: 350
@@ -231,12 +263,14 @@ Item {
     }
     Timer { interval: 1000; running: true; repeat: true; triggeredOnStart: true; onTriggered: if (!recordingProbe.running) recordingProbe.running = true }
     function toggleRecording() {
-        var command = ["omarchy", "capture", "screenrecording"];
-        if (root.recording) command.push("--stop-recording");
+        var command = root.recording
+            ? ["omarchy", "capture", "screenrecording", "--stop-recording"]
+            : ["omarchy", "menu", "toggle", "trigger.capture.screenrecord"];
         Quickshell.execDetached(command);
     }
     function toggleIdle() { if (idleService) idleService.setIdleEnabled(stayAwake); }
     function toggleNotifications() { if (notificationService) notificationService.setDoNotDisturb(!doNotDisturb); }
+    function reloadShell() { Quickshell.execDetached(["omarchy", "restart", "shell"]); }
     Process {
         id: hiddenProbe
         command: ["test", "-f", Quickshell.env("HOME") + "/.local/state/omarchy/toggles/bar-off"]
@@ -254,9 +288,11 @@ Item {
     IpcHandler {
         target: "andy.side-panel"
         function status(): string {
-            return JSON.stringify({id: "andy.side-panel", position: "left", recording: root.recording,
+            return JSON.stringify({id: "andy.side-panel", position: root.position, recording: root.recording,
                 stayAwake: root.stayAwake, doNotDisturb: root.doNotDisturb,
                 pixelated: root.options.pixelated, iconPixels: root.options.iconPixels,
+                usage: iconUsage.snapshot(),
+                handoff: handoff.snapshot(),
                 popupStyle: PanelUi.PopupAppearance.snapshot(),
                 tooltip: {shown: root.tooltipShown, text: root.tooltipText,
                     screen: root.targetWindow(root.tooltipTarget) && root.targetWindow(root.tooltipTarget).screen

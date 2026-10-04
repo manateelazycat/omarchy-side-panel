@@ -29,7 +29,8 @@ function rightEntries(layout) {
     });
     return entries.filter(function(entry) {
         var id = entryId(entry);
-        return id !== "omarchy.spacer" && !(hasHyprmon && id === "omarchy.monitor");
+        return id !== "omarchy.spacer" && id !== "omarchy.agents"
+            && !(hasHyprmon && id === "omarchy.monitor");
     });
 }
 

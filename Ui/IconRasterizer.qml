@@ -6,16 +6,20 @@ import qs.Commons
 Item {
     id: rasterizer
     property var rootItem: null
+    property var glyphFiles: ({})
     property bool pixelated: true
+    property bool normalizeTrayIcons: true
     property int pixels: 16
     property var bindings: []
     property var watches: []
     property var images: []
     property var normalizers: []
-    property var imageNormalizers: new WeakMap()
+    // Keep visual wrappers alive until reset() releases their adapters.
+    property var imageNormalizers: new Map()
     property var vectors: []
-    property var imageVectors: new WeakMap()
-    property var adapted: new WeakMap()
+    property var imageVectors: new Map()
+    property var adapted: new Map()
+    property bool disposing: false
 
     Component {
         id: propertyBinding
@@ -31,7 +35,7 @@ Item {
         Connections {
             property var refresh: null
             ignoreUnknownSignals: true
-            function onChildrenChanged() { if (refresh) Qt.callLater(refresh); }
+            function onChildrenChanged() { if (refresh) refresh(); }
         }
     }
     Component { id: iconNormalizer; IconNormalizer {} }
@@ -58,14 +62,12 @@ Item {
                     bind(icon, "width", function() { return Style.bar.iconCanvas; });
                     bind(icon, "height", function() { return Style.bar.iconCanvas; });
                     var normalizer = iconNormalizer.createObject(rasterizer, {parent: rasterizer,
-                        sourceItem: icon, targetSize: Style.bar.iconCanvas});
+                        sourceItem: icon, targetSize: Style.bar.iconCanvas,
+                        normalize: rasterizer.normalizeTrayIcons});
                     normalizers.push(normalizer);
                     imageNormalizers.set(item, normalizer);
                     var vector = trayVector.createObject(rasterizer, {parent: icon, sourceImage: item, trayIcon: icon,
-                        foreground: Qt.binding(function() {
-                            return rasterizer.rootItem && "foreground" in rasterizer.rootItem
-                                ? rasterizer.rootItem.foreground : Color.bar.text;
-                        })});
+                        foreground: "white"});
                     vectors.push(vector); imageVectors.set(item, vector);
                     for (var effectIndex = 0; effectIndex < icon.children.length; effectIndex++) {
                         var effect = icon.children[effectIndex];
@@ -81,26 +83,30 @@ Item {
                     bind(icon, "layer.mipmap", function() { return false; });
                 }
             } else if ("font" in item && "text" in item && "baselineOffset" in item) {
-                var glyph = glyphVector.createObject(rasterizer, {parent: item.parent, sourceText: item});
+                var glyph = glyphVector.createObject(rasterizer, {parent: item.parent, sourceText: item,
+                    fileOverride: Qt.binding(function() { return rasterizer.glyphFiles[String(item.text)] || ""; })});
                 vectors.push(glyph);
             } else if ("children" in item && !("font" in item) && !("radius" in item)) {
                 watches.push(childWatch.createObject(rasterizer, {target: item,
-                    refresh: function() { rasterizer.refresh(); }}));
+                    refresh: function() { rasterizer.schedule(); }}));
             }
         }
         if ("children" in item) {
             for (var i = 0; i < item.children.length; i++) visit(item.children[i], seen);
         }
     }
-    function refresh() { visit(rootItem, new Set()); }
+    function schedule() { if (!disposing) refreshTimer.restart(); }
+    function refresh() { if (!disposing) visit(rootItem, new Set()); }
     function reset() {
+        // Disconnect before restoring bindings or removing visual siblings:
+        // those operations emit childrenChanged on the old tree.
+        watches.forEach(function(watch) { if (watch) { watch.target = null; watch.refresh = null; watch.destroy(); } });
         bindings.forEach(function(binding) { if (binding) { binding.when = false; binding.destroy(); } });
-        watches.forEach(function(watch) { if (watch) watch.destroy(); });
         normalizers.forEach(function(normalizer) { if (normalizer) normalizer.destroy(); });
         vectors.forEach(function(vector) { if (vector) vector.destroy(); });
         bindings = []; watches = []; images = []; normalizers = [];
-        vectors = []; imageNormalizers = new WeakMap(); imageVectors = new WeakMap(); adapted = new WeakMap();
-        Qt.callLater(refresh);
+        vectors = []; imageNormalizers = new Map(); imageVectors = new Map(); adapted = new Map();
+        schedule();
     }
     function snapshot() {
         return images.filter(function(item) { return item && item.sourceSize !== undefined; }).map(function(item) {
@@ -119,5 +125,7 @@ Item {
             .map(function(vector) { return {text: vector.sourceText.text, file: vector.file, ready: vector.ready, visible: vector.visible}; });
     }
     onRootItemChanged: reset()
-    Component.onCompleted: Qt.callLater(refresh)
+    Component.onCompleted: schedule()
+    Component.onDestruction: { disposing = true; refreshTimer.stop(); reset(); }
+    Timer { id: refreshTimer; interval: 0; onTriggered: rasterizer.refresh() }
 }

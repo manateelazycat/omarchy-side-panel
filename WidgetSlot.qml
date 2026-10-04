@@ -19,7 +19,10 @@ Item {
     property var activeItem: null
     property var loadedComponent: null
     property var widgetApi: null
-    readonly property real naturalHeight: activeItem && activeItem.visible ? Math.max(1, activeItem.implicitHeight) : 0
+    readonly property bool expandedTray: moduleName === "io.github.manateelazycat.tray-bar"
+        && activeItem && typeof activeItem.openTrayMenu === "function"
+    readonly property var trayItems: expandedTray ? activeItem.drawerItems.concat(activeItem.pinnedItems) : []
+    readonly property real naturalHeight: !expandedTray && activeItem && activeItem.visible ? Math.max(1, activeItem.implicitHeight) : 0
     implicitWidth: host.barSize
     implicitHeight: naturalHeight
     width: implicitWidth
@@ -34,23 +37,47 @@ Item {
         : Qt.size(Math.ceil(width * Screen.devicePixelRatio * 4), Math.ceil(height * Screen.devicePixelRatio * 4))
     layer.smooth: !host.options.pixelated
     layer.mipmap: false
-    layer.effect: PanelUi.MonochromeIconEffect { smooth: !root.host.options.pixelated }
+    layer.effect: PanelUi.MonochromeIconEffect { smooth: !root.host.options.pixelated; ink: root.host.foreground }
     layer.sourceRect: iconNormalizer.sourceRect
     readonly property var iconNormalizer: PanelUi.IconNormalizer {
         parent: root
-        sourceItem: root.activeItem
+        sourceItem: root.expandedTray ? null : root.activeItem
         // A tray contains several icons; its rasterizer normalizes each one.
         normalize: root.moduleName !== "io.github.manateelazycat.tray-bar"
         targetSize: Style.bar.iconCanvas
     }
     readonly property var iconRasterizer: PanelUi.IconRasterizer {
         parent: root
-        rootItem: root.activeItem
+        rootItem: root.expandedTray ? null : root.activeItem
+        glyphFiles: root.moduleName === "omarchy.bluetooth"
+            ? ({"󰂯": "widgets/bluetooth.svg", "󰂱": "widgets/bluetooth.svg", "󰂲": "widgets/bluetooth.svg"})
+            : root.moduleName === "omarchy.network" ? ({
+                "󰈀": "widgets/network.svg", "󰤮": "widgets/network.svg",
+                "󰤯": "widgets/network.svg", "󰤟": "widgets/network.svg",
+                "󰤢": "widgets/network.svg", "󰤥": "widgets/network.svg", "󰤨": "widgets/network.svg"
+            }) : root.moduleName === "omarchy.audio" ? ({
+                "": "widgets/audio.svg", "󰋋": "widgets/audio.svg",
+                "": "widgets/audio.svg", "": "widgets/audio.svg", "": "widgets/audio.svg"
+            }) : root.moduleName === "crmne.hyprmoncfg" || root.moduleName === "omarchy.monitor"
+                ? ({"󰍺": "widgets/monitors.svg", "󰍹": "widgets/monitors.svg"}) : ({})
         pixelated: root.host.options.pixelated
         pixels: root.host.options.iconPixels
     }
 
     readonly property var popupStyler: PanelUi.PopupStyler { rootObject: root.activeItem; label: root.moduleName }
+    // Retain the native tray's menu/state owner; render its apps as individual
+    // dock cells so their counts can be compared with every other icon.
+    Binding {
+        target: root.activeItem
+        property: "visible"
+        value: false
+        when: root.expandedTray
+        restoreMode: Binding.RestoreBindingOrValue
+    }
+    PanelUi.IconClickTracker {
+        rootItem: root.expandedTray ? null : root.activeItem
+        record: function() { root.host.recordIconClick("widget:" + root.moduleName); }
+    }
 
     // Plugins keep their own per-icon text (including individual tray apps).
     // Supply a label only when the hovered child has not requested a tooltip.

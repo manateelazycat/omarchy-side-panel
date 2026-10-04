@@ -1,7 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 550 550">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="85.64 8.434 356.32 527.86">
   <title>FlClash</title>
   <desc>Monochrome vector rendition of https://flclash.cc/logo.png. GPL-3.0-only artwork.</desc>
-  <path d="M117.84 228.62L409.77 60.10" fill="none" stroke="rgb(119,119,119)" stroke-width="112.54" stroke-linecap="round"/>
-  <path d="M192.80 358.56L338.65 274.36" fill="none" stroke="rgb(98,98,98)" stroke-width="112.54" stroke-linecap="round"/>
-  <path d="M323.89 488.52A56.27 56.27 0 1 1 211.35 488.52A56.27 56.27 0 1 1 323.89 488.52Z" fill="rgb(153,153,153)"/>
+  <path d="M117.84 228.62L409.77 60.10" fill="none" stroke="#fff" stroke-width="32" stroke-linecap="round"/>
+  <path d="M192.80 358.56L338.65 274.36" fill="none" stroke="#fff" stroke-width="32" stroke-linecap="round"/>
+  <circle cx="267.62" cy="488.52" r="16" fill="#fff"/>
 </svg>
