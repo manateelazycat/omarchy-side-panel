@@ -34,7 +34,16 @@ Item {
     layer.smooth: !host.options.pixelated
     layer.mipmap: false
     layer.effect: PanelUi.MonochromeIconEffect {}
+    layer.sourceRect: iconNormalizer.sourceRect
+    readonly property var iconNormalizer: PanelUi.IconNormalizer {
+        parent: root
+        sourceItem: root.activeItem
+        // A tray contains several icons; its rasterizer normalizes each one.
+        normalize: root.moduleName !== "io.github.manateelazycat.tray-bar"
+        targetSize: Style.bar.iconCanvas
+    }
     readonly property var iconRasterizer: PanelUi.IconRasterizer {
+        parent: root
         rootItem: root.activeItem
         pixelated: root.host.options.pixelated
         pixels: root.host.options.iconPixels

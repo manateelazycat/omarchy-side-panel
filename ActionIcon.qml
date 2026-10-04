@@ -19,6 +19,12 @@ BarIconButton {
     layer.smooth: !host.options.pixelated
     layer.mipmap: false
     layer.effect: PanelUi.MonochromeIconEffect {}
+    layer.sourceRect: iconNormalizer.sourceRect
+    readonly property var iconNormalizer: PanelUi.IconNormalizer {
+        parent: root
+        sourceItem: root
+        targetSize: root.opticalSize
+    }
     text: action === "power" ? "󰐥"
         : action === "recording" ? (host.recording ? "󰓛" : "󰻂")
         : action === "idle" ? (host.stayAwake ? "󰅶" : "󰒲")
