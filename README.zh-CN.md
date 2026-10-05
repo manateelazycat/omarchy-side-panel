@@ -12,7 +12,8 @@ Omarchy 自动隐藏侧边任务栏，支持多显示器。
 - 统一黑白灰图标，悬停时平滑放大。
 - 按点击次数排序，重启后保留统计；电源菜单始终排在第一位。
 - 图标超出高度时支持滚轮滑动和弹性回弹；**Alt + 滚轮**保留图标原有操作。
-- 复用现有右侧插件和应用托盘图标。
+- 复用现有右侧插件，内置系统托盘；所有未隐藏的应用图标直接显示，无展开箭头，无需单独安装托盘插件。
+- 保留托盘隐藏与固定设置、应用点击和滚轮操作、右键菜单及多级子菜单。
 - Shell 重启后自动恢复仍在运行的应用托盘，支持 Catlink 的远程微信托盘。
 - 微信托盘使用圆角矩形边框和大写 W，线条与其他图标一致；其他普通托盘使用灰色圆角矩形和大写首字母，保留懒猫微服和 FlClash 的定制图标。闪烁提醒改为跟随主题主色的圆点，提醒结束或点击图标后清除。
 - 提供电源、录屏、空闲锁屏、通知和重启 Shell 按钮。
@@ -28,6 +29,8 @@ python3 install.py
 ```
 
 安装器会备份配置并重启 Shell。备份和点击统计保存在 `~/.local/state/omarchy-side-panel/`。
+
+安装时会将旧的 `io.github.manateelazycat.tray-bar` 配置迁移到 `omarchy.tray`，保留原有设置。安装完成后，可运行 `omarchy plugin remove io.github.manateelazycat.tray-bar --yes` 卸载旧插件。
 
 ## 配置
 
@@ -60,3 +63,5 @@ python3 install.py uninstall
 ## 许可证
 
 [GPL-3.0-only](LICENSE)。
+
+内置托盘改编自 Omarchy Tray Bar 和 Omarchy，详见[第三方声明](THIRD_PARTY_NOTICES.md)。

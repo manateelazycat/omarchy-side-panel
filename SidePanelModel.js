@@ -10,6 +10,10 @@ function entrySettings(entry) {
     return settings;
 }
 
+function isTrayEntry(id) {
+    return ["omarchy.tray", "tray", "io.github.manateelazycat.tray-bar"].indexOf(id) !== -1;
+}
+
 function tooltipLabel(id, metadata) {
     var labels = {
         "omarchy.agents": "AI 助手",
@@ -31,6 +35,10 @@ function rightEntries(layout) {
         var id = entryId(entry);
         return id !== "omarchy.spacer" && id !== "omarchy.agents"
             && !(hasHyprmon && id === "omarchy.monitor");
+    }).map(function(entry) {
+        // Old tray-bar layouts continue to work even after its plugin is removed.
+        if (!isTrayEntry(entryId(entry))) return entry;
+        return typeof entry === "string" ? "omarchy.tray" : Object.assign({}, entry, {id: "omarchy.tray"});
     });
 }
 
@@ -67,6 +75,6 @@ function serviceBridgeId(id) {
 }
 
 if (typeof module !== "undefined") module.exports = {
-    entryId: entryId, entrySettings: entrySettings, tooltipLabel: tooltipLabel, rightEntries: rightEntries,
+    entryId: entryId, entrySettings: entrySettings, isTrayEntry: isTrayEntry, tooltipLabel: tooltipLabel, rightEntries: rightEntries,
     options: options, magnification: magnification, serviceBridgeId: serviceBridgeId
 };

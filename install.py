@@ -16,10 +16,22 @@ PLUGIN_ID = "andy.side-panel"
 SOURCE = Path(__file__).resolve().parent
 FILES = ["manifest.json", "Bar.qml", "DockSurface.qml", "WidgetSlot.qml",
          "ActionIcon.qml", "ServiceBridge.qml", "SidePanelModel.js", "IconUsage.qml",
-         "UsageModel.js", "TrayButton.qml", "TrayIconModel.js", "TrayAttention.qml", "TrayRecovery.qml", "recover-tray.py",
-         "DockLayout.qml", "DockCoordinator.qml", "README.md", "README.zh-CN.md", "LICENSE"]
+         "UsageModel.js", "TrayButton.qml", "TrayIconModel.js", "TrayController.qml", "TrayModel.js",
+         "TrayAttention.qml", "TrayRecovery.qml", "recover-tray.py",
+         "DockLayout.qml", "DockCoordinator.qml", "README.md", "README.zh-CN.md", "LICENSE", "THIRD_PARTY_NOTICES.md"]
 STYLED_SERVICES = ["andy.language-switcher", "andy.display-reset", "io.github.manateelazycat.startup-map"]
 STYLE_IMPORT = 'import "../andy.side-panel/Ui" as SidePanelUi // andy.side-panel popup style\n'
+
+
+def migrate_tray_entries(config):
+    """Use the built-in tray id while retaining the old widget's inline settings."""
+    layout = config.get("bar", {}).get("layout", {})
+    for section in ("left", "center", "right"):
+        entries = layout.get(section, [])
+        for index, entry in enumerate(entries):
+            entry_id = entry if isinstance(entry, str) else entry.get("id")
+            if entry_id == "io.github.manateelazycat.tray-bar":
+                entries[index] = "omarchy.tray" if isinstance(entry, str) else {**entry, "id": "omarchy.tray"}
 
 
 def style_service_popups(plugin_directory, state_directory, stamp, enabled):
@@ -180,6 +192,7 @@ def main():
                 shutil.copy2(SOURCE / name, stage / name)
             shutil.copytree(SOURCE / "Ui", stage / "Ui")
             shutil.copytree(SOURCE / "Icons", stage / "Icons")
+            shutil.copytree(SOURCE / "licenses", stage / "licenses")
             cache_home = Path(os.environ.get("XDG_CACHE_HOME", str(Path.home() / ".cache")))
             (cache_home / "omarchy-side-panel/icons").mkdir(parents=True, exist_ok=True)
             stop_shell_for_update()
@@ -191,6 +204,7 @@ def main():
             adapted_services = style_service_popups(destination.parent, state_dir, stamp, True)
             updated = copy.deepcopy(config)
             updated.setdefault("bar", {})["id"] = PLUGIN_ID
+            migrate_tray_entries(updated)
             atomic_json(config_path, updated)
             restart_shell()
             screen_count = verify_activation()

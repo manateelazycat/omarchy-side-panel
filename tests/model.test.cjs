@@ -3,9 +3,16 @@ const assert = require('node:assert/strict');
 const model = require('../SidePanelModel.js');
 
 test('keeps the existing right-side order and inline settings, excluding the duplicate monitor', () => {
-  const entries = [{id: 'tray', pinned: ['steam']}, {id: 'crmne.hyprmoncfg'}, {id: 'omarchy.audio'}, {id: 'omarchy.monitor'}];
+  const entries = [{id: 'omarchy.tray', pinned: ['steam']}, {id: 'crmne.hyprmoncfg'}, {id: 'omarchy.audio'}, {id: 'omarchy.monitor'}];
   assert.deepEqual(model.rightEntries({right: entries}), entries.slice(0, 3));
   assert.equal(entries.length, 4);
+});
+test('uses the internal tray for built-in and legacy entries without losing settings or editing the input', () => {
+  const legacy = {id: 'io.github.manateelazycat.tray-bar', pinned: ['steam'], hidden: ['chat']};
+  assert.deepEqual(model.rightEntries({right: [legacy]}), [{...legacy, id: 'omarchy.tray'}]);
+  assert.equal(legacy.id, 'io.github.manateelazycat.tray-bar');
+  assert.deepEqual(model.rightEntries({right: ['tray', 'omarchy.tray']}), ['omarchy.tray', 'omarchy.tray']);
+  assert.equal(model.isTrayEntry('custom.tray'), false);
 });
 test('retains the standard monitor control when hyprmoncfg is absent', () => {
   assert.deepEqual(model.rightEntries({right: ['omarchy.audio', 'omarchy.monitor']}), ['omarchy.audio', 'omarchy.monitor']);

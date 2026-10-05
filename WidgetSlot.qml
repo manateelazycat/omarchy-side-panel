@@ -11,17 +11,18 @@ Item {
     required property var entry
     property string region: "right"
     readonly property string moduleName: Model.entryId(entry)
+    readonly property bool internalTray: Model.isTrayEntry(moduleName)
     readonly property var settings: Model.entrySettings(entry)
     readonly property var registration: host.barWidgetRegistry ? host.barWidgetRegistry.widgets[moduleName] : null
-    readonly property bool firstParty: registration && registration.metadata && registration.metadata.firstParty === true
+    readonly property bool firstParty: internalTray || (registration && registration.metadata && registration.metadata.firstParty === true)
     readonly property string tooltipText: Model.tooltipLabel(moduleName, registration ? registration.metadata : null)
     readonly property bool tooltipHovered: slotHover.hovered && naturalHeight > 0
     property var activeItem: null
     property var loadedComponent: null
     property var widgetApi: null
-    readonly property bool expandedTray: moduleName === "io.github.manateelazycat.tray-bar"
+    readonly property bool expandedTray: internalTray
         && activeItem && typeof activeItem.openTrayMenu === "function"
-    readonly property var trayItems: expandedTray ? activeItem.drawerItems.concat(activeItem.pinnedItems) : []
+    readonly property var trayItems: expandedTray ? activeItem.visibleItems : []
     readonly property real naturalHeight: !expandedTray && activeItem && activeItem.visible ? Math.max(1, activeItem.implicitHeight) : 0
     implicitWidth: host.barSize
     implicitHeight: naturalHeight
@@ -43,7 +44,7 @@ Item {
         parent: root
         sourceItem: root.expandedTray ? null : root.activeItem
         // A tray contains several icons; its rasterizer normalizes each one.
-        normalize: root.moduleName !== "io.github.manateelazycat.tray-bar"
+        normalize: !root.internalTray
         targetSize: Style.bar.iconCanvas
     }
     readonly property var iconRasterizer: PanelUi.IconRasterizer {
@@ -65,7 +66,7 @@ Item {
     }
 
     readonly property var popupStyler: PanelUi.PopupStyler { rootObject: root.activeItem; label: root.moduleName }
-    // Retain the native tray's menu/state owner; render its apps as individual
+    // Retain the internal tray's menu/state owner; render its apps as individual
     // dock cells so their counts can be compared with every other icon.
     Binding {
         target: root.activeItem
@@ -103,7 +104,7 @@ Item {
     }
 
     function rebuild() {
-        var component = registration ? registration.component : null;
+        var component = internalTray ? trayComponent : (registration ? registration.component : null);
         if (loadedComponent === component) return;
         if (activeItem) { host.releasePopout(activeItem); activeItem.destroy(); activeItem = null; }
         loadedComponent = component;
@@ -114,8 +115,9 @@ Item {
         activeItem.width = Qt.binding(function() { return root.width; });
         activeItem.height = Qt.binding(function() { return root.height; });
     }
+    Component { id: trayComponent; TrayController {} }
     onRegistrationChanged: rebuild()
-    onEntryChanged: inject()
+    onSettingsChanged: inject()
     Component.onCompleted: { host.registerModuleSlot(root); rebuild(); }
     Component.onDestruction: host.unregisterModuleSlot(root)
 }

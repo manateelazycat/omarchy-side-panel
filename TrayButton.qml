@@ -7,7 +7,7 @@ import "TrayIconModel.js" as TrayModel
 import "Ui/TraySvg.js" as TraySvg
 import "Ui" as PanelUi
 
-// Individual tray cells share the existing plugin's menu controller.
+// Individual tray cells share the side panel's internal menu controller.
 Item {
     id: button
     required property var host

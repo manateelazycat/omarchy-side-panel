@@ -105,7 +105,37 @@ class InstallationLifecycle(unittest.TestCase):
         self.assertTrue((self.plugin / "Bar.qml").exists())
         self.assertTrue((self.plugin / "TrayRecovery.qml").exists())
         self.assertTrue((self.plugin / "recover-tray.py").exists())
+        self.assertTrue((self.plugin / "TrayController.qml").exists())
+        self.assertTrue((self.plugin / "TrayModel.js").exists())
+        self.assertTrue((self.plugin / "licenses/OMARCHY-LICENSE").exists())
         self.assertIn(b"SidePanelUi.PopupStyler", self.service.read_bytes())
+
+    def with_legacy_tray(self):
+        self.original_config["bar"]["layout"].update({
+            "left": ["io.github.manateelazycat.tray-bar"],
+            "center": [{"id": "omarchy.clock", "format": "HH:mm"}],
+            "right": [{"id": "io.github.manateelazycat.tray-bar",
+                       "hidden": ["chat"], "pinned": ["steam"], "custom": 17}]})
+        self.config_path.write_text(json.dumps(self.original_config))
+
+    def test_migrates_legacy_tray_and_retains_settings_and_unrelated_layout(self):
+        self.with_legacy_tray()
+        self.invoke()
+        config = json.loads(self.config_path.read_text())
+        self.assertEqual(config["bar"]["layout"]["left"], ["omarchy.tray"])
+        self.assertEqual(config["bar"]["layout"]["right"], [
+            {"id": "omarchy.tray", "hidden": ["chat"], "pinned": ["steam"], "custom": 17}])
+        self.assertEqual(config["bar"]["layout"]["center"], self.original_config["bar"]["layout"]["center"])
+        self.assertEqual(config["plugins"], self.original_config["plugins"])
+        self.assertEqual(config["disabledPlugins"], self.original_config["disabledPlugins"])
+        self.assertEqual(config["idle"], self.original_config["idle"])
+
+    def test_failed_activation_restores_legacy_tray_configuration(self):
+        self.with_legacy_tray()
+        with self.assertRaises(SystemExit):
+            self.invoke(activation_error=RuntimeError("tray failed"))
+        self.assertEqual(json.loads(self.config_path.read_text()), self.original_config)
+        self.assertEqual((self.plugin / "old.txt").read_text(), "previous plugin")
 
     def test_failed_activation_rolls_back_plugin_configuration_and_services(self):
         with self.assertRaises(SystemExit):
