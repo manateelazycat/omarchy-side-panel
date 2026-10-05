@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "andy.side-panel",
   "name": "Side Panel",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "author": "Andy",
   "license": "GPL-3.0-only",
   "description": "Animated, auto-hiding dock revealed at either screen edge, with an integrated system tray, existing widgets and recording, idle, notification and shell reload controls.",
