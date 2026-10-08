@@ -5,7 +5,7 @@ function hash(text) {
     return (value >>> 0).toString(16);
 }
 function packagedFile(id, source) {
-    if (/flclash/i.test(id)) return "tray/flclash.svg";
+    if (/flclash|com\.follow\.clash/i.test(id)) return "tray/flclash.svg";
     return /lzc-client|lazycat|懒猫/i.test(id) ? "tray/lazycat.svg" : "";
 }
 function simplify(points, epsilon) {

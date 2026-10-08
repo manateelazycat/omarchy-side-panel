@@ -15,7 +15,8 @@ Item {
     required property var modelData
     readonly property string usageKey: Usage.trayKey(modelData)
     readonly property color foreground: host.foreground
-    readonly property string customIconFile: TraySvg.packagedFile(String(modelData.id || TrayModel.name(modelData)), "")
+    readonly property string customIconFile: TraySvg.packagedFile(
+        [modelData.id, modelData.title, modelData.tooltipTitle].join(" "), "")
     readonly property bool outlined: !customIconFile && /wechat|weixin|微信/i.test(TrayModel.name(modelData) + " " + String(modelData.id || ""))
     readonly property string initial: outlined ? "W" : TrayModel.initial(modelData)
     readonly property var attentionState: "trayAttention" in host ? host.trayAttention.stateFor(modelData) : null

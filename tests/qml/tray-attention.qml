@@ -50,7 +50,7 @@ ShellRoot {
         }
         Plugin.TrayButton {
             id: flclash; x: 150; y: 10; host: host; controller: controller
-            modelData: ({id: "FlClash", title: "FlClash", icon: ""})
+            modelData: ({id: "RGagXMKVha", title: "com.follow.clash", icon: ""})
         }
     }
     TestCase { id: mouse; when: false }
