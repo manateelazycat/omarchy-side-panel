@@ -46,10 +46,15 @@ ShellRoot {
     Component { id: normalizerFactory; PanelUi.IconNormalizer {} }
     Component { id: effectFactory; PanelUi.MonochromeIconEffect { ink: testHost.foreground; smooth: true } }
     Component { id: actionFactory; Plugin.ActionIcon { host: testHost } }
+    Component { id: clockFactory; Plugin.ClockIcon { host: testHost } }
     Component { id: trayFactory; Plugin.TrayButton { host: testHost; controller: testController } }
     Component { id: rasterizerFactory; PanelUi.IconRasterizer { pixelated: false } }
     function add(name, item, normalizer) {
         var wrapper = wrapperFactory.createObject(canvas,{x:entries.length*32+4,y:40});
+        if ("slotHeight" in item) {
+            wrapper.width = item.implicitWidth;
+            wrapper.height = item.implicitHeight;
+        }
         item.parent=wrapper; item.x=0; item.y=0;
         root.entries = entries.concat([{name:name,item:wrapper,source:item,normalizer:normalizer}]);
     }
@@ -96,6 +101,7 @@ ShellRoot {
         }
         var generic=trayFactory.createObject(canvas,{modelData:{id:"example-app",icon:Qt.resolvedUrl("generic-tray.svg")}});
         add("托盘首字母",generic,generic.iconNormalizer);
+        add("时间",clockFactory.createObject(canvas, {displayDate: new Date(2026, 9, 10, 23, 59)}),null);
     }
     Timer {
         id: capture
@@ -104,7 +110,8 @@ ShellRoot {
             root.pending=entries.length;
             for(var i=0;i<entries.length;i++) {
                 var entry=entries[i];
-                console.log("ICON_METRIC",entry.name,JSON.stringify(entry.normalizer?entry.normalizer.snapshot():entry.source.snapshot()));
+                console.log("ICON_METRIC",entry.name,JSON.stringify(entry.normalizer?entry.normalizer.snapshot()
+                    :typeof entry.source.snapshot === "function" ? entry.source.snapshot() : {}));
                 entry.item.grabToImage(function(index, phase){return function(result){
                     if(!result.saveToFile(Quickshell.env("ICON_PREVIEW_DIR")+"/"+index+"-"+phase+".png")) root.failed=true;
                     root.pending--;
@@ -115,11 +122,19 @@ ShellRoot {
                                 testHost.recording=true; testHost.stayAwake=true; testHost.doNotDisturb=true;
                                 for(var q=0;q<entries.length;q++) root.switchInputMode(entries[q].source);
                             }
-                            else for(var q=0;q<entries.length;q++) entries[q].source.scale=1.28;
+                            else for(var q=0;q<entries.length;q++) {
+                                var source = entries[q].source;
+                                if ("magnification" in source) {
+                                    source.magnification = 1.28;
+                                    entries[q].item.width = source.implicitWidth;
+                                    entries[q].item.height = source.implicitHeight;
+                                } else source.scale=1.28;
+                            }
                             capture.restart();
                         }
                     }
-                };}(i,root.phase),Qt.size(112, Math.round(entry.item.height*4)));
+                };}(i,root.phase),Qt.size(Math.round(entry.item.width*(i === 19 ? 1 : 4)),
+                    Math.round(entry.item.height*(i === 19 ? 1 : 4))));
             }
         }
     }

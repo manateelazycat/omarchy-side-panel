@@ -32,9 +32,11 @@ function trayKey(item) {
 
 function rank(cells, counts) {
     return cells.filter(function(cell) { return cell && cell.height > 0; }).slice().sort(function(a, b) {
-        var aPower = a.usageKey === "action:power";
-        var bPower = b.usageKey === "action:power";
-        if (aPower !== bPower) return aPower ? -1 : 1;
+        var pinned = ["action:power", "widget:omarchy.clock"];
+        var aPinned = pinned.indexOf(a.usageKey);
+        var bPinned = pinned.indexOf(b.usageKey);
+        if (aPinned !== bPinned && (aPinned >= 0 || bPinned >= 0))
+            return aPinned < 0 ? 1 : bPinned < 0 ? -1 : aPinned - bPinned;
         return countFor(counts, b.usageKey) - countFor(counts, a.usageKey) || a.ordinal - b.ordinal;
     });
 }

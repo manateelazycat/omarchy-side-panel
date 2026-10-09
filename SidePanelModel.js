@@ -33,7 +33,7 @@ function rightEntries(layout) {
     });
     return entries.filter(function(entry) {
         var id = entryId(entry);
-        return id !== "omarchy.spacer" && id !== "omarchy.agents"
+        return id !== "omarchy.spacer" && id !== "omarchy.agents" && id !== "omarchy.clock"
             && !(hasHyprmon && id === "omarchy.monitor");
     }).map(function(entry) {
         // Old tray-bar layouts continue to work even after its plugin is removed.

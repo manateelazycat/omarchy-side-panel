@@ -77,6 +77,11 @@ ShellRoot {
             x: 60; y: 90
             host: host; action: "reload"
         }
+        Plugin.ClockIcon {
+            id: clock
+            x: 60; y: 125
+            host: host
+        }
         Plugin.DockLayout {
             id: layout
             x: 110; width: 40; counts: usage.counts
@@ -86,6 +91,13 @@ ShellRoot {
                 property int ordinal: 0
                 height: 20; y: layout.cellY(cellA)
                 Component.onCompleted: layout.registerCell(cellA)
+            }
+            Item {
+                id: clockCell
+                property string usageKey: "widget:omarchy.clock"
+                property int ordinal: 3
+                height: 20; y: layout.cellY(clockCell)
+                Component.onCompleted: layout.registerCell(clockCell)
             }
             Item {
                 id: cellB
@@ -117,6 +129,16 @@ ShellRoot {
         interval: 200; running: true
         onTriggered: {
             try {
+                root.check(clock.hours === Qt.formatDateTime(new Date(), "HH")
+                    && clock.minutes === Qt.formatDateTime(new Date(), "mm"), "Clock did not initialize to local time");
+                clock.displayDate = new Date(2026, 9, 10, 23, 59);
+                root.check(clock.hours === "23" && clock.minutes === "59", "Clock did not update");
+                clock.displayDate = new Date(2026, 9, 11, 0, 0);
+                root.check(clock.hours === "00" && clock.minutes === "00", "Midnight rollover lost leading zeros");
+                root.check(clock.stroke >= 2 && clock.digitHeight >= 16,
+                    "Clock strokes or digits are too small to read");
+                root.check(layout.orderedCells[1] === clockCell && clockCell.y === 24,
+                    "Clock lost second position");
                 var resumed = Quickshell.env("USAGE_PHASE") === "resume";
                 if (resumed) {
                     root.check(usage.counts["widget:test"] === 3, "Native clicks were not restored");
@@ -128,7 +150,7 @@ ShellRoot {
                     usage.record("widget:test");
                 } else {
                     root.check(usage.ready && !usage.error, "Store did not load");
-                    root.check(cellA.y === 0 && cellB.y === 24 && cellC.y === 48, "Initial order incorrect");
+                    root.check(cellA.y === 0 && cellB.y === 48 && cellC.y === 72, "Initial order incorrect");
                     mouse.mouseClick(native, 20, 15, Qt.LeftButton);
                     mouse.mouseClick(native, 20, 15, Qt.RightButton);
                     mouse.mouseClick(native, 20, 15, Qt.MiddleButton);
@@ -141,10 +163,10 @@ ShellRoot {
                     root.check(usage.counts["widget:custom"] === 2, "MouseArea activation duplicated or missed");
                     root.check(usage.counts["tray:lzc-client-desktop_status_icon"] === 3, "Tray activation duplicated or missed");
                     root.check(root.activations === 5 && root.menus === 1, "Native behavior changed");
-                    root.check(layout.orderedCells[0] === cellA && layout.orderedCells[1] === cellB
-                        && layout.orderedCells[2] === cellC,
+                    root.check(layout.orderedCells[0] === cellA && layout.orderedCells[1] === clockCell
+                        && layout.orderedCells[2] === cellB && layout.orderedCells[3] === cellC,
                         "Cells were not ranked by usage");
-                    root.check(cellA.y === 0 && cellB.y === 24 && cellC.y === 48, "Power menu was not pinned first");
+                    root.check(cellA.y === 0 && cellB.y === 48 && cellC.y === 72, "Pinned icon positions changed");
                     nativeTracker.rootItem = null;
                     gc();
                     native.triggerPress(Qt.LeftButton);

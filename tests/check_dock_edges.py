@@ -43,9 +43,9 @@ def main():
         text = text.replace("id: powerPopup\n", 'id: powerPopup\n        objectName: "powerPopup"\n        mask: Region {}\n')
         text = text.replace("id: powerCapsule\n", "id: powerCapsule\n            opacity: 0\n")
         text = text.replace("active: powerPopup.open", "active: false")
-        # Five real action cells exceed this viewport by 22px, matching the
-        # current desktop overflow without loading any user's plugin services.
-        text = text.replace("Math.max(100, height - 80)", "244")
+        # Leave 22px of overflow as the fixed icon count changes, without
+        # loading any user's plugin services.
+        text = text.replace("Math.max(100, height - 80)", "Math.max(100, column.implicitHeight - 22)")
         path.write_text(text)
         for package in (plugin, plugin / "Ui"):
             with (package / "qmldir").open("a") as stream:

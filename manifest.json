@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "id": "andy.side-panel",
   "name": "Side Panel",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "author": "Andy",
   "license": "GPL-3.0-only",
-  "description": "Animated, auto-hiding dock revealed at either screen edge, with an integrated system tray, existing widgets and recording, idle, notification and shell reload controls.",
+  "description": "Animated, auto-hiding dock at either screen edge, with a pinned seven-segment clock, integrated system tray, existing widgets and recording, idle, notification and shell reload controls.",
   "kinds": ["bar"],
   "entryPoints": { "bar": "Bar.qml" }
 }

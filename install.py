@@ -15,7 +15,7 @@ import time
 PLUGIN_ID = "andy.side-panel"
 SOURCE = Path(__file__).resolve().parent
 FILES = ["manifest.json", "Bar.qml", "DockSurface.qml", "WidgetSlot.qml",
-         "ActionIcon.qml", "ServiceBridge.qml", "SidePanelModel.js", "IconUsage.qml",
+         "ActionIcon.qml", "ClockIcon.qml", "ServiceBridge.qml", "SidePanelModel.js", "IconUsage.qml",
          "UsageModel.js", "TrayButton.qml", "TrayIconModel.js", "TrayController.qml", "TrayModel.js",
          "TrayAttention.qml", "TrayRecovery.qml", "recover-tray.py",
          "DockLayout.qml", "DockCoordinator.qml", "README.md", "README.zh-CN.md", "LICENSE", "THIRD_PARTY_NOTICES.md"]

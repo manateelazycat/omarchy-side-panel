@@ -78,6 +78,9 @@ PanelWindow {
             scroll: {y: Number(flick.contentY.toFixed(3)), maximum: flick.maximumY,
                 overflowing: flick.overflowing, animating: flick.wheelAnimating},
             powerMenu: powerCapsule.snapshot(),
+            clock: {hours: clockIcon.hours, minutes: clockIcon.minutes,
+                magnification: clockIcon.magnification, digitHeight: clockIcon.digitHeight,
+                stroke: clockIcon.stroke, paintWidth: clockIcon.paintWidth, paintHeight: clockIcon.paintHeight},
             powerY: dockTop + 18 + powerCell.y + powerCell.height / 2 - flick.contentY,
             powerNormalization: powerIcon.iconNormalizer.snapshot(),
             powerVectors: powerIcon.iconRasterizer.glyphSnapshot(),
@@ -232,6 +235,21 @@ PanelWindow {
                             height: implicitHeight
                             scale: powerCell.iconScale
                             onPressed: function(button) { if (button === Qt.LeftButton) powerPopup.open = !powerPopup.open; }
+                        }
+                    }
+
+                    DockCell {
+                        id: clockCell
+                        usageKey: "widget:omarchy.clock"
+                        ordinal: 1
+                        nativeHeight: clockIcon.slotHeight / surface.baseScale
+                        ClockIcon {
+                            id: clockIcon
+                            host: surface.host
+                            anchors.centerIn: parent
+                            width: implicitWidth
+                            height: implicitHeight
+                            magnification: clockCell.proximityScale
                         }
                     }
 

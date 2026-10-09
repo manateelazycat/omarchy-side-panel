@@ -41,7 +41,9 @@ def inspect(path, contrast=False):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--staged', type=Path, help='Validate staged icon changes before applying them')
-    staged = parser.parse_args().staged
+    parser.add_argument('--preview-dir', type=Path)
+    args = parser.parse_args()
+    staged = args.staged
     source = Path(__file__).resolve().parents[1]
     omarchy = Path(os.environ.get('OMARCHY_PATH', '/usr/share/omarchy'))
     projects = source.parent
@@ -53,7 +55,7 @@ def main():
             shutil.copytree(source/name, root/'Plugin'/name)
             if staged:
                 shutil.copytree(staged/source.name/name, root/'Plugin'/name, dirs_exist_ok=True)
-        for name in ('ActionIcon.qml', 'TrayButton.qml', 'UsageModel.js', 'TrayIconModel.js'):
+        for name in ('ActionIcon.qml', 'ClockIcon.qml', 'TrayButton.qml', 'UsageModel.js', 'TrayIconModel.js'):
             path = staged/source.name/name if staged and (staged/source.name/name).exists() else source/name
             shutil.copy2(path, root/'Plugin'/name)
         for package in (root/'Plugin', root/'Plugin/Ui'):
@@ -90,12 +92,21 @@ def main():
         if result.returncode or 'ICON_PASS' not in output or re.search(
                 r'ICON_FAIL|ICON_TIMEOUT|TypeError|ReferenceError|ERROR:|Cannot read property', output):
             raise SystemExit(f'Icon rendering failed ({result.returncode})\n{output[-7000:]}')
+        if args.preview_dir:
+            args.preview_dir.mkdir(parents=True, exist_ok=True)
+            for index, name in [(7, 'power'), (19, 'clock')]:
+                for phase in range(3):
+                    shutil.copy2(root/f'{index}-{phase}.png', args.preview_dir/f'{name}-{phase}.png')
         for phase in range(3):
             paths = [root/f'{index}-{phase}.png' for index in range(19)]
             extents = [inspect(path, contrast=index == 18) for index, path in enumerate(paths)]
             expected = 64 * (1.28 if phase == 2 else 1)
             assert all(abs(extent-expected) <= 2 for extent in extents), (phase, extents)
-        print('19 icons: calendar sizing, shared tint, tray contrast, state changes and hover magnification passed')
+            clock_extent = inspect(root/f'19-{phase}.png')
+            assert clock_extent == (49 if phase == 2 else 38), (phase, clock_extent)
+            native_pixels = subprocess.check_output(['magick', str(root/f'19-{phase}.png'), '-depth', '8', 'rgba:-'])
+            assert set(native_pixels[3::4]) <= {0, 255}, f'Clock has blurred edges at native size: phase {phase}'
+        print('20 icons: clock sizing, shared tint, tray contrast, state changes and hover magnification passed')
 
 
 if __name__ == '__main__':
